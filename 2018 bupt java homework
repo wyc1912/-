@@ -1,0 +1,311 @@
+import java.util.List;
+
+public abstract class Employee {
+	String firstName;
+	String lastName;
+	String socialSecurityNumber;
+	
+	Employee(String[] data){
+		this.firstName=data[1];
+		this.lastName=data[2];
+		this.socialSecurityNumber=data[3];
+	}
+	
+	abstract double earning();
+	
+	public String getFirstName(){
+		return firstName;
+	}
+	
+	public String getLastName(){
+		return firstName;
+	}
+	
+	public void setFirstName(String newFirstName){
+		this.firstName=newFirstName;
+	}
+	
+	public void setLastName(String newLastName){
+		this.lastName=newLastName;
+	}
+	
+	public String getSocialSecurityNumber(){
+		return socialSecurityNumber;
+	}
+	
+	public String toString(){
+		return "firstName:"+firstName+"; lastName:"+lastName+"; socialSecurityNumber:"+socialSecurityNumber+"; earning:"+((int)(earning()*100))/100.0;
+	}
+
+}
+
+
+
+/*next class*/
+import java.util.List;
+
+public class SalaridEmployee extends Employee{
+	double weeklySalary;//��н
+	
+	SalaridEmployee(String[] data) {
+		super(data);
+		this.weeklySalary=Double.parseDouble(data[4]);
+	}
+
+	@Override
+	double earning(){
+		return weeklySalary*4;
+	}
+	
+	public double getWeeklySalary(){
+		return weeklySalary;
+	}
+	
+	public void setWeeklySalary(double newWeeklySalary){
+		this.weeklySalary=newWeeklySalary;
+	}
+
+}
+
+
+/*next class*/
+import java.util.List;
+
+public class HourlyEmployee extends Employee{
+	double wage;
+	double hours;
+	
+	HourlyEmployee(String[] data) {
+		super(data);
+		this.wage=Double.parseDouble(data[4]);
+		this.hours=Double.parseDouble(data[5]);
+	}
+
+	@Override
+	double earning(){
+		return wage*hours;
+	}
+	
+	public double getWage(){
+		return wage; 
+	}
+	
+	public void setWage(double newWage){
+		this.wage=newWage;
+	}
+	
+	public double getHours(){
+		return hours;
+	}
+	
+	public void setHours(double newHours){
+		this.hours=newHours;
+	}
+
+}
+
+
+
+/*next class*/
+import java.util.List;
+
+public class CommissionEmployee extends Employee{
+	double grossSales;
+	double commissionRate;
+	
+	CommissionEmployee(String[] data) {
+		super(data);
+		this.grossSales=Double.parseDouble(data[4]);
+		this.commissionRate=Double.parseDouble(data[5]);
+	}
+
+	@Override
+	double earning(){
+		return grossSales*commissionRate;
+	}
+	
+	public double getGrossSales(){
+		return grossSales;
+	}
+	
+	public void setGrossSales(double newGrossSales){
+		this.grossSales=newGrossSales;
+	}
+	
+	public double getCommissionRate(){
+		return commissionRate;
+	}
+	
+	public void setCommissionRate(double newCommissionRate){
+		this.commissionRate=newCommissionRate;
+	}
+
+}
+
+
+/*next class*/
+import java.util.List;
+
+public class BasePlusCommissionEmployee extends CommissionEmployee{
+	double baseSalary;
+	
+	BasePlusCommissionEmployee(String[] data) {
+		super(data);
+		this.baseSalary=Double.parseDouble(data[6]);
+	}
+
+	@Override
+	double earning(){
+		return grossSales*commissionRate+baseSalary;
+	}
+	
+	public double getBaseSalary(){
+		return baseSalary;
+	}
+	
+	public void setBaseSalary(double newBaseSalary){
+		this.baseSalary=newBaseSalary;
+	}
+
+}
+
+
+
+/*next class*/
+import java.util.*;
+
+public class factory {
+	private HashMap<String,Employee> allemployees=new HashMap<String,Employee>();
+
+	Employee typeEmployee(String[] s){
+		switch(s[0]){
+		case "0":SalaridEmployee e0=new SalaridEmployee(s);return e0;
+		case "1":HourlyEmployee e1=new HourlyEmployee(s);return e1;
+		case "2":CommissionEmployee e2=new CommissionEmployee(s);return e2;
+		case "3":BasePlusCommissionEmployee e3=new BasePlusCommissionEmployee(s);return e3;
+		case "-1":return null;
+		}
+		return null;
+	}
+	
+	void initEmployees(List<String[]> es){
+		//使用List接口
+		for(String[] s:es){
+			Employee anemployee=typeEmployee(s);
+			if(anemployee!=null)allemployees.put(anemployee.socialSecurityNumber,anemployee);
+		}
+	}
+	
+	Employee getEmployee(String emSeNu){
+		if(allemployees.containsKey(emSeNu)){
+			Employee anemployee=allemployees.get(emSeNu);
+			System.out.println(anemployee.toString());
+			return anemployee;
+		}
+
+		else {
+			System.out.println("get: employee not found.");
+			return null;
+		}
+	}
+	
+	Employee deleteEmployee(String emSeNu){
+		if(allemployees.containsKey(emSeNu)){
+			Employee anemployee=allemployees.remove(emSeNu);
+			System.out.println(anemployee.toString());
+			return anemployee;
+		}
+		else {
+			System.out.println("delete: employee not found.");
+			return null;
+		}
+	}
+	
+	Employee addEmployee(Employee anemployee){
+		if(allemployees.containsKey(anemployee.socialSecurityNumber)){
+			System.out.println("add:employee exists.");
+			return null;
+		}
+		else{
+			System.out.println(anemployee.toString());
+			allemployees.put(anemployee.socialSecurityNumber, anemployee);
+			return anemployee;
+		}
+
+	}
+	
+	Employee updateEmployee(String emSeNu,Employee anemployee){
+		if(allemployees.containsKey(emSeNu)){
+			allemployees.remove(emSeNu);
+			allemployees.put(emSeNu, anemployee);
+			System.out.println(anemployee.toString());
+			return anemployee;
+		}
+		else{
+			System.out.println("update:employee not found.");
+			return null;
+		}
+	}
+	
+	void printEmployees(){
+		for(Employee anemployee:this.allemployees.values())
+			System.out.println(anemployee.toString());
+	}
+
+}
+
+
+
+/*next class*/
+import java.util.*;
+
+public class test {
+	public static void main(String[] args){
+		Scanner scanner=new Scanner(System.in);
+		System.out.println("enter all orders:");
+		factory factory=new factory();
+		List<String[]> shurudata =new ArrayList<String[]>();
+		while(scanner.hasNextLine()){
+			String[] s=scanner.nextLine().split(" ");
+			if(s[0].equals("init"))
+				shurudata.add(Arrays.copyOfRange(s, 1, s.length));
+			if(s[1].equals("-1")) break;
+		}
+		factory.initEmployees(shurudata);
+		while(scanner.hasNextLine()){
+				String[] s=scanner.nextLine().split(" ");
+				switch(s[0]){
+				case "get":factory.getEmployee(s[1]);break;
+				case "delete":factory.deleteEmployee(s[1]);break;
+				case "add":
+					factory.addEmployee(factory.typeEmployee((Arrays.copyOfRange(s, 1, s.length))));break;
+				case "update":
+					Employee e=factory.typeEmployee((Arrays.copyOfRange(s, 1, s.length)));
+					factory.updateEmployee(e.socialSecurityNumber,e);break;
+				case "print":
+					factory.printEmployees();break;
+				default:break;
+					
+				}		
+			
+		}
+		scanner.close();
+		
+	}
+/*
+init 0 Ai Meng 2012673901 4312
+init 1 NanXiong Qimu 201682340 15.2 200
+init 2 Guo Yang 2017672347 46781.3 0.1
+init 3 Rong Huang 2018768901 7854.4 0.28 7098
+init -1
+get 2018768902
+get 2018768901
+delete 2018768901
+add 0 Ai Meng 2012673901 4312
+add 0 Hai Kong 2015673901 4333
+update 0 Hai Kong 2015673901 9999
+delete 2017672347
+delete 2015673909
+print
+ */
+}
